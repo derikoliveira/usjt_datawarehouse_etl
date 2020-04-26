@@ -1,8 +1,27 @@
 # Projeto de Datawarehousing & Data Mining
 
-## Universidade São Judas Tadeu
+### Universidade São Judas Tadeu
 
-### Proposta
+## Como Executar
+
+1. Clone o projeto localmente.
+
+2. Faça a importação dos sqls dentro de `banco` para o MySQL.
+    
+    Um é dependente do outro, então importe na seguinte ordem:
+    
+    1. `fato_script.sql`
+    2. `agregado_script.sql`
+
+3. Crie um usuário `alunos` com senha `alunos`.
+
+4. Rode o script `main.py`, dentro de `src`.
+
+    ```
+    $ python src/main.py
+    ```
+
+## Proposta
 
 Queremos acompanhar a execução orçamentária do governo no ano passado (2019). Para isso, faça o seguinte: 
 
@@ -41,5 +60,5 @@ orçamentária dos últimos 20 anos (considere o volume de 2019 como média anua
 
 9. Faça os scripts de carga, em Python, para carregar os arquivos dos 12 meses de 
 execução orçamentária e o arquivo de orçamento na tabela fato e suas dimensões e 
-nas agregações e suas dimensões. 
+nas agregações e suas dimensões.
  

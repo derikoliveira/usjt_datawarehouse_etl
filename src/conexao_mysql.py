@@ -51,3 +51,13 @@ class MySQL:
             return result
         except Error as e:
             print(f"The error '{e}' occurred")
+
+    def execute_read_query_with_description(self, query):
+        cursor = self.connection.cursor()
+        result = None
+        try:
+            cursor.execute(query)
+            result = cursor.fetchall()
+            return cursor.description, result
+        except Error as e:
+            print(f"The error '{e}' occurred")

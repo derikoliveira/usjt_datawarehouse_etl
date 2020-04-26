@@ -2,24 +2,38 @@
 
 ### Universidade São Judas Tadeu
 
+## Dependências
+
+Python 3 (64-bit)
+
+MySQL
+
 ## Como Executar
 
-1. Clone o projeto localmente.
+1. Clonar o projeto localmente.
 
-2. Faça a importação dos sqls dentro de `banco` para o MySQL.
+2. Fazer a importação dos sqls dentro do diretório `banco` para o MySQL.
     
-    Um é dependente do outro, então importe na seguinte ordem:
+    Um é dependente do outro, então importar na seguinte ordem:
     
     1. `fato_script.sql`
     2. `agregado_script.sql`
 
-3. Crie um usuário `alunos` com senha `alunos`.
+3. Criar um usuário `alunos` com senha `alunos` com permissões de inserção.
 
-4. Rode o script `main.py`, dentro de `src`.
+4. Instalar dependências do Python.
+
+    ```
+    $ pip install -r requirements.txt
+    ```
+
+5. Rodar o script `main.py`, dentro de `src` para importar os dados.
 
     ```
     $ python src/main.py
     ```
+
+6. Rodar o Jupyter e abrir o arquivo `src/listagem_dados.ipynb` para visualizar os dados.
 
 ## Proposta
 

@@ -25,6 +25,9 @@ class Importacao:
         self.inserir_dim_tempo()
         self.inserir_ag_orgao_subordinado_ano()
         self.inserir_ag_orgao_superior_ano()
+        self.inserir_ag_orgao_subordinado_programa_ano()
+        self.inserir_ag_funcao_ano()
+        self.inserir_ag_programa_ano()
 
     def criar_despesas_df(self, despesas_caminho_arq):
         print('Criando DataFrame Despesas')
@@ -238,4 +241,62 @@ class Importacao:
         for ag in ag_orgao_superior_ano.itertuples():
             self.mysql_obj.execute_par_query(insert, (ag.valor_orcado, ag.valor_liquidado,
                                                       ano_id, ag.cod_orgao_superior)
+                                             )
+
+    def inserir_ag_orgao_subordinado_programa_ano(self):
+        print('Inserindo AG_ORGAO_SUBORDINADO_PROGRAMA_ANO')
+        insert = """
+            INSERT INTO
+                ag_orgao_subordinado_programa_ano (
+                valor_orcado, valor_liquidado, ORGAO_SUBORDINADO_cod, PROGRAMA_cod, DIM_TEMPO_id
+                )
+            VALUES
+                (%s, %s, %s, %s, %s)
+        """
+        ano_id = self.get_dim_tempo_id()
+
+        ag_orgao_programa = self.fato_orcamento_df.groupby(['cod_orgao_subordinado', 'cod_prog_orc']).sum()
+        ag_orgao_programa = ag_orgao_programa.reset_index()
+        ag_orgao_programa = ag_orgao_programa.fillna(0.0)
+
+        for ag in ag_orgao_programa.itertuples():
+            self.mysql_obj.execute_par_query(insert, (ag.valor_orcado, ag.valor_liquidado,
+                                                      ag.cod_orgao_subordinado, ag.cod_prog_orc,
+                                                      ano_id,)
+                                             )
+
+    def inserir_ag_funcao_ano(self):
+        print('Inserindo AG_FUNCAO_ANO')
+        insert = """
+            INSERT INTO
+                ag_funcao_ano (valor_orcado, valor_liquidado, FUNCAO_cod, DIM_TEMPO_id)
+            VALUES
+                (%s, %s, %s, %s)
+        """
+        ano_id = self.get_dim_tempo_id()
+
+        ag_funcao = self.fato_orcamento_df.groupby(['cod_funcao']).sum().reset_index()
+        ag_funcao = ag_funcao.fillna(0.0)
+
+        for ag in ag_funcao.itertuples():
+            self.mysql_obj.execute_par_query(insert, (ag.valor_orcado, ag.valor_liquidado,
+                                                      ag.cod_funcao, ano_id)
+                                             )
+
+    def inserir_ag_programa_ano(self):
+        print('Inserindo AG_PROGRAMA_ANO')
+        insert = """
+            INSERT INTO
+                ag_programa_ano (valor_orcado, valor_liquidado, PROGRAMA_cod, DIM_TEMPO_id)
+            VALUES
+                (%s, %s, %s, %s)
+        """
+        ano_id = self.get_dim_tempo_id()
+
+        ag_programa = self.fato_orcamento_df.groupby(['cod_prog_orc']).sum().reset_index()
+        ag_programa = ag_programa.fillna(0.0)
+
+        for ag in ag_programa.itertuples():
+            self.mysql_obj.execute_par_query(insert, (ag.valor_orcado, ag.valor_liquidado,
+                                                      ag.cod_prog_orc, ano_id)
                                              )

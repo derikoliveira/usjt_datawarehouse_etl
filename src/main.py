@@ -9,8 +9,8 @@ def main():
     despesas_arqs = retorna_caminhos_arqs_despesas()
     orcamento = '../dados/2019_OrcamentoDespesa.zip.csv'
     mysql_obj = MySQL('localhost', 'alunos', 'alunos', 'atividade02')
-    model_fato = Importacao(despesas_arqs, orcamento, mysql_obj)
-    model_fato.importar()
+    importacao_obj = Importacao(despesas_arqs, orcamento, mysql_obj)
+    importacao_obj.importar()
     mysql_obj.connection.close()
     print('Importação realizada com sucesso')
 

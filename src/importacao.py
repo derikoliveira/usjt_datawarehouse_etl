@@ -192,27 +192,27 @@ class Importacao:
                                                       fato.cod_subfuncao, fato.cod_uni_orc)
                                              )
 
-    def inserir_ag_tempo(self):
-        print('Inserindo AG_TEMPO')
-        insert = """INSERT INTO ag_tempo (ano) VALUES (%s)"""
+    def inserir_dim_tempo(self):
+        print('Inserindo DIM_TEMPO')
+        insert = """INSERT INTO dim_tempo (ano) VALUES (%s)"""
         ano = self.fato_orcamento_df['exercicio'][0]
         query = insert % ano
         self.mysql_obj.execute_query(query)
 
-    def get_ag_tempo_id(self):
+    def get_dim_tempo_id(self):
         ano_mes = self.fato_orcamento_df['exercicio'][0]
-        query = """SELECT id FROM ag_tempo where ag_tempo.ano = '%s'""" % ano_mes
+        query = """SELECT id FROM dim_tempo where dim_tempo.ano = '%s'""" % ano_mes
         return self.mysql_obj.execute_read_query(query)[0][0]
 
     def inserir_ag_orgao_subordinado_ano(self):
         print('Inserindo AG_ORGAO_SUBORDINADO_ANO')
         insert = """
             INSERT INTO
-                ag_orgao_subordinado_ano (valor_orcado, valor_liquidado, TEMPO_id, ORGAO_SUBORDINADO_cod)
+                ag_orgao_subordinado_ano (valor_orcado, valor_liquidado, DIM_TEMPO_id, ORGAO_SUBORDINADO_cod)
             VALUES
                 (%s, %s, %s, %s)
         """
-        ano_id = self.get_ag_tempo_id()
+        ano_id = self.get_dim_tempo_id()
 
         ag_orgao_subordinado_ano = self.fato_orcamento_df.groupby(['cod_orgao_subordinado']).sum().reset_index()
         ag_orgao_subordinado_ano = ag_orgao_subordinado_ano.fillna(0.0)
@@ -226,11 +226,11 @@ class Importacao:
         print('Inserindo AG_ORGAO_SUPERIOR_ANO')
         insert = """
             INSERT INTO
-                ag_orgao_superior_ano (valor_orcado, valor_liquidado, TEMPO_id, ORGAO_SUPERIOR_cod)
+                ag_orgao_superior_ano (valor_orcado, valor_liquidado, DIM_TEMPO_id, ORGAO_SUPERIOR_cod)
             VALUES
                 (%s, %s, %s, %s)
         """
-        ano_id = self.get_ag_tempo_id()
+        ano_id = self.get_dim_tempo_id()
 
         ag_orgao_superior_ano = self.fato_orcamento_df.groupby(['cod_orgao_superior']).sum().reset_index()
         ag_orgao_superior_ano = ag_orgao_superior_ano.fillna(0.0)

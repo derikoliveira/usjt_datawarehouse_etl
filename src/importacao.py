@@ -41,12 +41,12 @@ class Importacao:
         despesas.columns = list(DESPESAS_COL.keys())
         print(f'Despesas: {len(despesas)}')
         print(f'Quantidade de NaNs:\n{despesas.isna().sum()}')
-        print('Trocando NaNs por strings vazias')
+        print('Trocando NaNs por strings vazias\n')
         despesas.fillna('', inplace=True)
         return despesas
 
     def criar_orcamentos_df(self, orcamentos_caminho_arq):
-        print('Criando DataFrame Orçamento')
+        print('Criando DataFrame Orçamento\n')
         orcamentos = pd.read_csv(
             orcamentos_caminho_arq,
             delimiter=';', decimal=',',
@@ -70,7 +70,7 @@ class Importacao:
         return orcamentos_mensais
 
     def criar_fato_orcamento_df(self, despesas, orcamentos):
-        print('Fazendo merge dos DataFrames de Despesas e Orçamento')
+        print('Fazendo merge dos DataFrames de Despesas e Orçamento\n')
         df = despesas.merge(
             orcamentos,
             on=[
@@ -91,6 +91,8 @@ class Importacao:
         print('Inserindo TEMPO')
         insert = """INSERT INTO tempo (ano_mes) VALUES (%s)"""
         ano_meses = self.fato_orcamento_df['ano_mes'].unique()
+
+        print(f'Quantidade: {len(ano_meses)}\n')
         for ano_mes in ano_meses:
             self.mysql_obj.execute_par_query(insert, (ano_mes,))
 
@@ -99,6 +101,8 @@ class Importacao:
         insert = """INSERT INTO programa (cod, nome) VALUES (%s, %s)"""
         programas = self.fato_orcamento_df[['cod_prog_orc', 'nome_prog_orc']]
         programas_unicos = programas.drop_duplicates(subset='cod_prog_orc', keep='first')
+
+        print(f'Quantidade: {len(programas_unicos)}\n')
         for linha in programas_unicos.itertuples(index=None, name=None):
             self.mysql_obj.execute_par_query(insert, linha)
 
@@ -107,6 +111,8 @@ class Importacao:
         insert = """INSERT INTO acao (cod, PROGRAMA_cod, nome) VALUES (%s, %s, %s)"""
         acoes = self.fato_orcamento_df[['cod_acao', 'cod_prog_orc', 'nome_acao']]
         acoes_unicas = acoes.drop_duplicates(subset='cod_acao', keep='first')
+
+        print(f'Quantidade: {len(acoes_unicas)}\n')
         for linha in acoes_unicas.itertuples(index=None, name=None):
             self.mysql_obj.execute_par_query(insert, linha)
 
@@ -115,6 +121,8 @@ class Importacao:
         insert = """INSERT INTO orgao_superior (cod, nome) VALUES (%s, %s)"""
         orgaos_superiores = self.fato_orcamento_df[['cod_orgao_superior', 'nome_orgao_superior']]
         orgaos_superiores_unicos = orgaos_superiores.drop_duplicates(subset='cod_orgao_superior', keep='first')
+
+        print(f'Quantidade: {len(orgaos_superiores_unicos)}\n')
         for linha in orgaos_superiores_unicos.itertuples(index=None, name=None):
             self.mysql_obj.execute_par_query(insert, linha)
 
@@ -131,6 +139,7 @@ class Importacao:
                                                       'nome_orgao_subordinado']]
         orgaos_subordinados_unicos = orgaos_subordinados.drop_duplicates(subset='cod_orgao_subordinado', keep='first')
 
+        print(f'Quantidade: {len(orgaos_subordinados_unicos)}\n')
         for linha in orgaos_subordinados_unicos.itertuples(index=None, name=None):
             self.mysql_obj.execute_par_query(insert, linha)
 
@@ -145,6 +154,7 @@ class Importacao:
         unidades_orcamentarias = self.fato_orcamento_df[['cod_uni_orc', 'cod_orgao_subordinado', 'nome_uni_orc']]
         unidades_orcamentarias_unicas = unidades_orcamentarias.drop_duplicates(subset='cod_uni_orc', keep='first')
 
+        print(f'Quantidade: {len(unidades_orcamentarias_unicas)}\n')
         for linha in unidades_orcamentarias_unicas.itertuples(index=None, name=None):
             self.mysql_obj.execute_par_query(insert, linha)
 
@@ -154,6 +164,7 @@ class Importacao:
         funcoes = self.fato_orcamento_df[['cod_funcao', 'nome_funcao']].drop_duplicates(subset='cod_funcao',
                                                                                         keep='first')
 
+        print(f'Quantidade: {len(funcoes)}\n')
         for linha in funcoes.itertuples(index=None, name=None):
             self.mysql_obj.execute_par_query(insert, linha)
 
@@ -163,6 +174,7 @@ class Importacao:
         subfuncoes = self.fato_orcamento_df[['cod_subfuncao', 'cod_funcao', 'nome_subfuncao']]
         subfuncoes_unicas = subfuncoes.drop_duplicates(subset='cod_subfuncao', keep='first')
 
+        print(f'Quantidade: {len(subfuncoes_unicas)}\n')
         for linha in subfuncoes_unicas.itertuples(index=None, name=None):
             self.mysql_obj.execute_par_query(insert, linha)
 
@@ -189,6 +201,7 @@ class Importacao:
         fatos_orcamentos = fatos_orcamentos.reset_index()
         fatos_orcamentos = fatos_orcamentos.fillna(0.0)
 
+        print(f'Quantidade: {len(fatos_orcamentos)}\n')
         for fato in fatos_orcamentos.itertuples():
             self.mysql_obj.execute_par_query(insert, (fato.valor_orcado, fato.valor_liquidado,
                                                       ano_meses_dict[fato.ano_mes], fato.cod_acao,
@@ -196,7 +209,7 @@ class Importacao:
                                              )
 
     def inserir_dim_tempo(self):
-        print('Inserindo DIM_TEMPO')
+        print('Inserindo DIM_TEMPO\n')
         insert = """INSERT INTO dim_tempo (ano) VALUES (%s)"""
         ano = self.fato_orcamento_df['exercicio'][0]
         query = insert % ano
@@ -220,6 +233,7 @@ class Importacao:
         ag_orgao_subordinado_ano = self.fato_orcamento_df.groupby(['cod_orgao_subordinado']).sum().reset_index()
         ag_orgao_subordinado_ano = ag_orgao_subordinado_ano.fillna(0.0)
 
+        print(f'Quantidade: {len(ag_orgao_subordinado_ano)}\n')
         for ag in ag_orgao_subordinado_ano.itertuples():
             self.mysql_obj.execute_par_query(insert, (ag.valor_orcado, ag.valor_liquidado,
                                                       ano_id, ag.cod_orgao_subordinado)
@@ -238,6 +252,7 @@ class Importacao:
         ag_orgao_superior_ano = self.fato_orcamento_df.groupby(['cod_orgao_superior']).sum().reset_index()
         ag_orgao_superior_ano = ag_orgao_superior_ano.fillna(0.0)
 
+        print(f'Quantidade: {len(ag_orgao_superior_ano)}\n')
         for ag in ag_orgao_superior_ano.itertuples():
             self.mysql_obj.execute_par_query(insert, (ag.valor_orcado, ag.valor_liquidado,
                                                       ano_id, ag.cod_orgao_superior)
@@ -259,6 +274,7 @@ class Importacao:
         ag_orgao_programa = ag_orgao_programa.reset_index()
         ag_orgao_programa = ag_orgao_programa.fillna(0.0)
 
+        print(f'Quantidade: {len(ag_orgao_programa)}\n')
         for ag in ag_orgao_programa.itertuples():
             self.mysql_obj.execute_par_query(insert, (ag.valor_orcado, ag.valor_liquidado,
                                                       ag.cod_orgao_subordinado, ag.cod_prog_orc,
@@ -278,6 +294,7 @@ class Importacao:
         ag_funcao = self.fato_orcamento_df.groupby(['cod_funcao']).sum().reset_index()
         ag_funcao = ag_funcao.fillna(0.0)
 
+        print(f'Quantidade: {len(ag_funcao)}\n')
         for ag in ag_funcao.itertuples():
             self.mysql_obj.execute_par_query(insert, (ag.valor_orcado, ag.valor_liquidado,
                                                       ag.cod_funcao, ano_id)
@@ -296,6 +313,7 @@ class Importacao:
         ag_programa = self.fato_orcamento_df.groupby(['cod_prog_orc']).sum().reset_index()
         ag_programa = ag_programa.fillna(0.0)
 
+        print(f'Quantidade: {len(ag_programa)}\n')
         for ag in ag_programa.itertuples():
             self.mysql_obj.execute_par_query(insert, (ag.valor_orcado, ag.valor_liquidado,
                                                       ag.cod_prog_orc, ano_id)

@@ -22,7 +22,7 @@ class Importacao:
         self.inserir_subfuncao()
         self.inserir_fato_orcamento()
 
-        self.inserir_ag_tempo()
+        self.inserir_dim_tempo()
         self.inserir_ag_orgao_subordinado_ano()
         self.inserir_ag_orgao_superior_ano()
 
